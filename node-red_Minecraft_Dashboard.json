@@ -1,0 +1,382 @@
+[
+    {
+        "id": "6945436b23baffe0",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "14e4dbbf566ecd1d",
+        "type": "mqtt out",
+        "z": "6945436b23baffe0",
+        "name": "",
+        "topic": "led",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "2e78326d404594ca",
+        "x": 1650,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "768a074a215928cd",
+        "type": "function",
+        "z": "6945436b23baffe0",
+        "name": "Health to RGB Color",
+        "func": "// Sicherstellen, dass payload und value existieren\nlet payload = msg.payload;\nlet health = (payload && typeof payload.value === 'number') ? payload.value : NaN;\n\n// Wenn health nicht gültig ist → Fehler anzeigen\nif (isNaN(health)) {\n    node.error(\"Health-Wert ist keine gültige Zahl!\", msg);\n    node.status({fill: \"red\", shape: \"ring\", text: \"Health NaN\"});\n    return null;\n}\n\n// Anzahl LEDs und Farben berechnen\nlet maxHealth = 20;\nlet ledCount = 16;\nlet filledRatio = Math.max(0, Math.min(1, health / maxHealth));\nlet activeLEDs = filledRatio * ledCount;\n\nlet rgbValues = [];\n\nfor (let i = 0; i < ledCount; i++) {\n    let fill = activeLEDs - i;\n    let brightness = Math.max(0, Math.min(1, fill));\n\n    let r = Math.round(255 * (1 - brightness));\n    let g = Math.round(255 * brightness);\n    let b = 0;\n\n    rgbValues.push({ r, g, b });\n}\n\nmsg.payload = rgbValues;\nnode.status({fill: \"green\", shape: \"dot\", text: `HP: ${health}`});\n\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1340,
+        "y": 360,
+        "wires": [
+            [
+                "14e4dbbf566ecd1d",
+                "972b15f204cc6f91"
+            ]
+        ]
+    },
+    {
+        "id": "2eb70457c07af6df",
+        "type": "playerinfo",
+        "z": "6945436b23baffe0",
+        "name": "Player Health",
+        "server": "fdd9776d718a368f",
+        "infoType": "health",
+        "player": "",
+        "x": 1040,
+        "y": 340,
+        "wires": [
+            [
+                "768a074a215928cd",
+                "status_format"
+            ]
+        ]
+    },
+    {
+        "id": "serverinfo1",
+        "type": "serverinfo",
+        "z": "6945436b23baffe0",
+        "name": "Server Info",
+        "server": "fdd9776d718a368f",
+        "x": 370,
+        "y": 540,
+        "wires": [
+            [
+                "function1"
+            ]
+        ]
+    },
+    {
+        "id": "inject1",
+        "type": "inject",
+        "z": "6945436b23baffe0",
+        "name": "Spielerliste abrufen",
+        "props": [],
+        "repeat": "10",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.5,
+        "topic": "",
+        "x": 140,
+        "y": 540,
+        "wires": [
+            [
+                "serverinfo1"
+            ]
+        ]
+    },
+    {
+        "id": "function1",
+        "type": "function",
+        "z": "6945436b23baffe0",
+        "name": "Namen extrahieren",
+        "func": "let players = msg.payload.players || [];\nif (!Array.isArray(players)) {\n    players = [];\n}\n\n// msg.options erwartet ein Array von Strings oder Label-Value-Objekten\nmsg.options = players.map(p => {\n    return { [p.name]: p.name };  // ergibt z.B. { \"Alice\": \"Alice\" }\n});\n\nreturn msg;\n\n\n",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 610,
+        "y": 540,
+        "wires": [
+            [
+                "3c33333333333333",
+                "beb6c84cf1c8c6fe"
+            ]
+        ]
+    },
+    {
+        "id": "3c33333333333333",
+        "type": "ui_dropdown",
+        "z": "6945436b23baffe0",
+        "name": "Spieler auswählen",
+        "label": "Spieler",
+        "tooltip": "",
+        "place": "Bitte auswählen",
+        "group": "c4040d8b5e3258b0",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "multiple": false,
+        "options": [],
+        "payload": "",
+        "topic": "playername",
+        "topicType": "str",
+        "className": "",
+        "x": 890,
+        "y": 540,
+        "wires": [
+            [
+                "5e55555555555555"
+            ]
+        ]
+    },
+    {
+        "id": "5e55555555555555",
+        "type": "function",
+        "z": "6945436b23baffe0",
+        "name": "Spieler speichern",
+        "func": "flow.set(\"playername\", msg.payload);\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1230,
+        "y": 540,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "trigger_button",
+        "type": "ui_button",
+        "z": "6945436b23baffe0",
+        "name": "Sende Spieler",
+        "group": "c4040d8b5e3258b0",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "label": "Auswahl senden",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "",
+        "payloadType": "str",
+        "topic": "",
+        "topicType": "str",
+        "x": 100,
+        "y": 360,
+        "wires": [
+            [
+                "load_from_context"
+            ]
+        ]
+    },
+    {
+        "id": "load_from_context",
+        "type": "function",
+        "z": "6945436b23baffe0",
+        "name": "Setze msg.payload",
+        "func": "msg.payload = flow.get(\"playername\") || \"\";\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 390,
+        "y": 360,
+        "wires": [
+            [
+                "a7181636b105e7c8",
+                "deine_zielnode"
+            ]
+        ]
+    },
+    {
+        "id": "deine_zielnode",
+        "type": "debug",
+        "z": "6945436b23baffe0",
+        "name": "Empfängt Spieler",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 710,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "ui_text_hp_display",
+        "type": "ui_text",
+        "z": "6945436b23baffe0",
+        "group": "c4040d8b5e3258b0",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "name": "HP-Anzeige",
+        "label": "Spielerstatus",
+        "format": "{{msg.payload}}",
+        "layout": "col-center",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": "",
+        "color": "#000000",
+        "x": 1650,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "status_format",
+        "type": "function",
+        "z": "6945436b23baffe0",
+        "name": "Formatierte HP-Anzeige",
+        "func": "let health = msg.payload?.value || 0;\nlet player = msg.player || flow.get(\"playername\") || \"Unbekannt\";\n\nmsg.payload = `🧍 ${player}\\n❤️ HP: ${health}`;\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1350,
+        "y": 320,
+        "wires": [
+            [
+                "ui_text_hp_display"
+            ]
+        ]
+    },
+    {
+        "id": "beb6c84cf1c8c6fe",
+        "type": "debug",
+        "z": "6945436b23baffe0",
+        "name": "debug 1",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 860,
+        "y": 620,
+        "wires": []
+    },
+    {
+        "id": "a7181636b105e7c8",
+        "type": "function",
+        "z": "6945436b23baffe0",
+        "name": "Starte Health-Abfrage",
+        "func": "let playername = flow.get(\"playername\");\nif (!playername) {\n    node.warn(\"Kein Spieler ausgewählt.\");\n    return null;\n}\n\n// Vorherigen Timer stoppen, falls vorhanden\nlet previousInterval = flow.get(\"healthInterval\");\nif (previousInterval) {\n    clearInterval(previousInterval);\n}\n\n// Neuer Intervall alle 5 Sekunden\nlet interval = setInterval(() => {\n    node.send({ payload: playername });\n}, 1000);\n\nflow.set(\"healthInterval\", interval);\n\n// Erste Abfrage direkt senden\nreturn { payload: playername };",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "let interval = flow.get(\"healthInterval\");\nif (interval) {\n    clearInterval(interval);\n}",
+        "libs": [],
+        "x": 720,
+        "y": 340,
+        "wires": [
+            [
+                "2eb70457c07af6df"
+            ]
+        ]
+    },
+    {
+        "id": "972b15f204cc6f91",
+        "type": "debug",
+        "z": "6945436b23baffe0",
+        "name": "debug 2",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1660,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "2e78326d404594ca",
+        "type": "mqtt-broker",
+        "name": "",
+        "broker": "tome.lu",
+        "port": 1883,
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": 4,
+        "keepalive": 60,
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "fdd9776d718a368f",
+        "type": "serverconfig",
+        "host": "tome.lu",
+        "rconPort": 25575,
+        "rconPassword": "teinf"
+    },
+    {
+        "id": "c4040d8b5e3258b0",
+        "type": "ui_group",
+        "name": "Default",
+        "tab": "2cbc2cdef536dcb2",
+        "order": 1,
+        "disp": true,
+        "width": 6,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "2cbc2cdef536dcb2",
+        "type": "ui_tab",
+        "name": "Minecraft",
+        "icon": "dashboard",
+        "order": 1,
+        "disabled": false,
+        "hidden": false
+    }
+]
