@@ -47,6 +47,8 @@ Visualisiere die Lebenspunkte von Minecraft-Spielern auf einem RGB-LED-Streifen 
 4. **RCON-Serverdaten eintragen**
    - Bearbeite den `serverconfig` Node
    - Trage Minecraft-Server-IP, RCON-Port und Passwort ein
+   - ![image](https://github.com/user-attachments/assets/d756d41f-6155-4c19-bcc4-88761eba3251)
+
 
 5. **Dashboard öffnen**
    - Starte Node-RED: `node-red`
