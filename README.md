@@ -41,7 +41,8 @@ Visualisiere die Lebenspunkte von Minecraft-Spielern auf einem RGB-LED-Streifen 
 3. **MQTT-Broker konfigurieren**
    - Doppelklick auf den `mqtt-broker` Node
    - Stelle die Verbindung zu deinem MQTT-Server her (z. B. `localhost` oder IP deines Brokers)
-   - https://github.com/Frankye1/Minecraft_Health/blob/main/Image/Screenshot%202025-05-20%20090810.png?raw=true
+   - ![image](https://github.com/user-attachments/assets/8ddb78f8-fab4-4d41-b372-b8c9f47ad384)
+
 
 4. **RCON-Serverdaten eintragen**
    - Bearbeite den `serverconfig` Node
