@@ -52,7 +52,9 @@ In Node-RED:
 #### RCON-Serverdaten eintragen  
 
 - Bearbeite den `serverconfig` Node  
-- Trage Minecraft-Server-IP, RCON-Port und Passwort ein  
+- Trage Minecraft-Server-IP, RCON-Port und Passwort ein
+- ![image](https://github.com/user-attachments/assets/1e8b9fa0-d762-448e-8d9c-2ccd34e49eb1)
+
 
 #### Dashboard öffnen  
 
