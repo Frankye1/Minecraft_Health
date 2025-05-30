@@ -46,7 +46,8 @@ In Node-RED:
 
 - Doppelklick auf den `mqtt-broker` Node  
 - Stelle die Verbindung zu deinem MQTT-Server her (z. B. `localhost` oder IP deines Brokers)
-- https://github.com/Frankye1/Minecraft_Health/blob/main/Image/Screenshot%202025-05-20%20090810.png?raw=true  
+- ![image](https://github.com/user-attachments/assets/4632c5ef-8c7f-4b31-9916-91269113e69c)
+
 
 #### RCON-Serverdaten eintragen  
 
